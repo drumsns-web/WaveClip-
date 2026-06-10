@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-title" content="WaveClip">
   <title>WaveClip - 音声抽出・カット編集</title>
 
-  <!-- PWA用のマニフェストとアイコン設定 -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.jpg">
   <link rel="icon" type="image/jpeg" href="icon.jpg">
@@ -17,8 +16,8 @@
     :root {
       --primary-color: #007aff;
       --secondary-color: #34c759;
+      --danger-color: #ff3b30;
       --play-color: #ff9500;
-      /* ダークテーマの色設定 */
       --bg-color: #1c1c1e;
       --card-bg: #2c2c2e;
       --text-color: #ffffff;
@@ -32,77 +31,71 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0; padding: 20px;
-      touch-action: pan-y;
+      background-color: var(--bg-color); color: var(--text-color);
+      margin: 0; padding: 20px; touch-action: pan-y;
     }
     .container {
       max-width: 600px; margin: 0 auto; background: var(--card-bg);
       padding: 24px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     .header-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 24px;
     }
-    .header-logo img {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
+    .header-logo img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
     h1 { font-size: 22px; margin: 0; }
+
     .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--muted-text); }
+    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: var(--muted-text); }
     input[type="file"], input[type="number"] {
       width: 100%; padding: 12px; border: 1px solid var(--border-color);
       border-radius: 8px; box-sizing: border-box; font-size: 16px;
       background-color: var(--input-bg); color: var(--text-color);
     }
-    .fade-inputs { display: flex; gap: 16px; margin-top: 15px; }
-    .fade-inputs > div { flex: 1; }
-    .volume-input { margin-top: 15px; }
-    .volume-input input[type="range"] {
+
+    /* スライダー共通スタイル */
+    input[type="range"] {
       width: 100%; height: 40px; touch-action: none;
       -webkit-appearance: none; background: var(--input-bg); border-radius: 8px;
     }
-    .volume-input input[type="range"]::-webkit-slider-thumb {
+    input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 24px; height: 24px;
       background: var(--primary-color); border-radius: 50%;
     }
+
+    .fade-inputs { display: flex; gap: 16px; margin-top: 15px; }
+    .fade-inputs > div { flex: 1; }
+    .volume-input, .zoom-control { margin-top: 15px; }
+
     .waveform-container {
-      position: relative; margin: 20px 0; background: var(--canvas-bg);
+      position: relative; margin: 10px 0; background: var(--canvas-bg);
       border-radius: 8px; overflow: hidden; touch-action: pan-x pinch-zoom;
       border: 1px solid var(--border-color);
     }
-    #waveCanvas {
-      width: 100%; height: 120px; display: block;
-      cursor: pointer; touch-action: none;
+    #waveCanvas { width: 100%; height: 120px; display: block; cursor: pointer; touch-action: none; }
+    .info-badge {
+      position: absolute; background: rgba(0,0,0,0.8); color: white;
+      padding: 4px 8px; border-radius: 4px; font-size: 12px; font-variant-numeric: tabular-nums;
     }
-    .zoom-info {
-      position: absolute; top: 8px; right: 8px;
-      background: rgba(0,0,0,0.8); color: white;
-      padding: 4px 8px; border-radius: 4px; font-size: 12px;
-    }
-    .scroll-info {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(0,0,0,0.8); color: white;
-      padding: 4px 8px; border-radius: 4px; font-size: 12px;
-    }
-    .time-inputs { display: flex; gap: 16px; margin-top: 20px; }
-    .time-inputs > div { flex: 1; }
-    .controls { display: flex; gap: 10px; margin-top: 5px; }
-    .button-group { display: flex; gap: 12px; margin-top: 15px; flex-direction: column; }
+    #zoomInfo { top: 8px; right: 8px; }
+    #scrollInfo { top: 8px; left: 8px; }
 
+    .time-inputs { display: flex; gap: 16px; margin-top: 10px; }
+    .time-inputs > div { flex: 1; }
+
+    .edit-buttons { display: flex; gap: 10px; margin-top: 15px; }
+    .edit-buttons button { padding: 12px; font-size: 14px; }
+
+    .button-group { display: flex; gap: 12px; margin-top: 20px; flex-direction: column; }
     button {
       width: 100%; border: none; padding: 16px; font-size: 16px; font-weight: bold;
-      border-radius: 12px; cursor: pointer; color: white;
+      border-radius: 12px; cursor: pointer; color: white; transition: 0.2s;
     }
-    #playBtn { background-color: var(--play-color); flex: 2; color: #fff;}
-    #resetScrollBtn { background-color: #48484a; flex: 1; }
+    button:active { filter: brightness(0.8); }
+
+    #playBtn { background-color: var(--play-color); }
+    #cropBtn { background-color: var(--primary-color); flex: 1; }
+    #deleteBtn { background-color: var(--danger-color); flex: 1; }
     #exportMp3Btn { background-color: var(--primary-color); }
     #exportWavBtn { background-color: var(--secondary-color); }
     button:disabled { background-color: #48484a !important; color: #8e8e93 !important; cursor: not-allowed; }
@@ -120,27 +113,17 @@
       animation: spin 1s linear infinite; margin-bottom: 16px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .audio-info { font-size: 14px; color: var(--muted-text); margin-top: 8px; text-align: center; }
-    .time-label { font-size: 12px; color: var(--muted-text); margin-top: 4px; text-align: center; }
-    .gesture-help { font-size: 12px; color: var(--muted-text); text-align: center; margin-top: 12px; }
-    .fade-help { font-size: 12px; color: var(--muted-text); text-align: center; margin-top: 4px; }
-    .volume-help { font-size: 12px; color: var(--muted-text); text-align: center; margin-top: 4px; }
+
+    .audio-info { font-size: 14px; color: var(--muted-text); margin-top: 8px; text-align: center; font-variant-numeric: tabular-nums;}
+    .time-label { font-size: 18px; font-weight: bold; color: var(--text-color); margin-top: 4px; text-align: center; font-variant-numeric: tabular-nums;}
+    .help-text { font-size: 12px; color: var(--muted-text); text-align: center; margin-top: 4px; }
 
     .fade-warning {
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--warning-text);
+      background: var(--warning-bg); border: 1px solid var(--warning-border);
+      border-radius: 8px; padding: 12px; margin-top: 10px; font-size: 13px; color: var(--warning-text);
     }
-    .fade-warning small {
-      font-size: 11px;
-      color: #ffd60a;
-      display: block;
-      margin-top: 4px;
-    }
+    .fade-warning small { font-size: 11px; color: #ffd60a; display: block; margin-top: 4px; }
+    hr { border: none; border-top: 1px solid var(--border-color); margin: 24px 0; }
   </style>
 </head>
 <body>
@@ -152,11 +135,51 @@
     </div>
 
     <div class="form-group">
-      <label for="mediaFile">動画・音声ファイルを選択</label>
+      <label for="mediaFile">📂 動画・音声ファイルを選択</label>
       <input type="file" id="mediaFile" accept="audio/*,video/*">
       <div id="audioInfo" class="audio-info">ファイルを選択してください</div>
     </div>
 
+    <div class="zoom-control">
+      <label for="zoomSlider">🔍 波形の拡大・縮小（ズーム）</label>
+      <input type="range" id="zoomSlider" min="1" max="15" step="0.1" value="1">
+    </div>
+
+    <div class="waveform-container">
+      <canvas id="waveCanvas" width="600" height="120"></canvas>
+      <div id="zoomInfo" class="info-badge">1.0x</div>
+      <div id="scrollInfo" class="info-badge">0:00.00</div>
+    </div>
+    <div class="help-text">👆 左右スワイプ：移動 | ドラッグ：A点〜B点の範囲選択</div>
+
+    <div style="margin-top: 15px;">
+      <button id="playBtn" disabled>▶ 再生プレビュー</button>
+    </div>
+
+    <hr>
+
+    <label>✂️ 編集範囲の指定</label>
+    <div class="time-inputs">
+      <div>
+        <label for="startTime">A点 (開始)</label>
+        <input type="number" id="startTime" min="0" step="0.01" value="0" disabled style="display:none;">
+        <div id="startTimeLabel" class="time-label">0:00.00</div>
+      </div>
+      <div>
+        <label for="endTime">B点 (終了)</label>
+        <input type="number" id="endTime" min="0" step="0.01" value="0" disabled style="display:none;">
+        <div id="endTimeLabel" class="time-label">0:00.00</div>
+      </div>
+    </div>
+
+    <div class="edit-buttons">
+      <button id="cropBtn" disabled>✂️ 選択範囲を切り出し<br><small style="font-weight:normal;">(他をすべて消す)</small></button>
+      <button id="deleteBtn" disabled>🗑️ 選択範囲を削除<br><small style="font-weight:normal;">(A〜B間を詰める)</small></button>
+    </div>
+
+    <hr>
+
+    <label>🎵 書き出し時のエフェクト</label>
     <div class="fade-inputs">
       <div>
         <label for="fadeIn">フェードイン (秒)</label>
@@ -167,49 +190,21 @@
         <input type="number" id="fadeOut" min="0" step="0.1" value="0.5">
       </div>
     </div>
-    <div class="fade-help">🎵 指定した時間で音量が徐々に上がり/下がります</div>
 
     <div id="fadeWarning" class="fade-warning" style="display: none;">
-      ⚠️ フェード時間がカット範囲を超えています<br>
+      ⚠️ フェード時間が音声の長さを超えています<br>
       <small id="fadeWarningText"></small>
     </div>
 
     <div class="volume-input">
-      <label for="volume">音量（0.0〜2.0）</label>
+      <label for="volume">音量調整（0.0〜2.0倍）</label>
       <input type="range" id="volume" min="0" max="2" step="0.1" value="1">
-      <div id="volumeLabel" class="time-label">1.0x</div>
-      <div class="volume-help">🔊 0.5=半分、1.0=元音、1.5=1.5 倍、2.0=最大（2 倍）</div>
-    </div>
-
-    <div class="waveform-container">
-      <canvas id="waveCanvas" width="600" height="120"></canvas>
-      <div id="zoomInfo" class="zoom-info">ズーム：1.0x</div>
-      <div id="scrollInfo" class="scroll-info">位置：0 秒</div>
-    </div>
-
-    <div class="controls">
-      <button id="playBtn" disabled>▶ 再生プレビュー</button>
-      <button id="resetScrollBtn" disabled>位置リセット</button>
-    </div>
-
-    <div class="gesture-help">👆 スワイプ：左右移動 | 👆👆 ピンチ：拡大縮小</div>
-
-    <div class="time-inputs">
-      <div>
-        <label for="startTime">開始時間 (秒)</label>
-        <input type="number" id="startTime" min="0" step="0.1" value="0" disabled>
-        <div id="startTimeLabel" class="time-label">0.00 秒</div>
-      </div>
-      <div>
-        <label for="endTime">終了時間 (秒)</label>
-        <input type="number" id="endTime" min="0" step="0.1" value="0" disabled>
-        <div id="endTimeLabel" class="time-label">0.00 秒</div>
-      </div>
+      <div id="volumeLabel" class="audio-info" style="margin-top:0;">1.0x</div>
     </div>
 
     <div class="button-group">
-      <button id="exportMp3Btn" disabled>MP3 でカット保存（軽量）</button>
-      <button id="exportWavBtn" disabled>WAV でカット保存（高音質）</button>
+      <button id="exportMp3Btn" disabled>MP3 で保存（軽量）</button>
+      <button id="exportWavBtn" disabled>WAV で保存（高音質）</button>
     </div>
   </div>
 
@@ -231,15 +226,12 @@
     let pauseOffset = 0;
     let animationId = null;
     let zoomLevel = 1;
-    const MIN_ZOOM = 0.5, MAX_ZOOM = 8;
-    let initialDistance = 0, currentZoom = 1;
     let scrollOffset = 0, lastTouchX = 0, isPanning = false;
 
     const mediaFileInput = document.getElementById('mediaFile');
+    const zoomSlider = document.getElementById('zoomSlider');
     const fadeInInput = document.getElementById('fadeIn');
     const fadeOutInput = document.getElementById('fadeOut');
-    const fadeWarning = document.getElementById('fadeWarning');
-    const fadeWarningText = document.getElementById('fadeWarningText');
     const volumeInput = document.getElementById('volume');
     const volumeLabel = document.getElementById('volumeLabel');
     const startTimeInput = document.getElementById('startTime');
@@ -247,123 +239,168 @@
     const startTimeLabel = document.getElementById('startTimeLabel');
     const endTimeLabel = document.getElementById('endTimeLabel');
     const playBtn = document.getElementById('playBtn');
-    const resetScrollBtn = document.getElementById('resetScrollBtn');
+    const cropBtn = document.getElementById('cropBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
     const exportMp3Btn = document.getElementById('exportMp3Btn');
     const exportWavBtn = document.getElementById('exportWavBtn');
     const audioInfo = document.getElementById('audioInfo');
-    const loaderOverlay = document.getElementById('loaderOverlay');
-    const loaderText = document.getElementById('loaderText');
     const waveCanvas = document.getElementById('waveCanvas');
     const zoomInfo = document.getElementById('zoomInfo');
     const scrollInfo = document.getElementById('scrollInfo');
+    const fadeWarning = document.getElementById('fadeWarning');
+    const fadeWarningText = document.getElementById('fadeWarningText');
 
-    function showLoader(text) { loaderText.textContent = text; loaderOverlay.classList.add('active'); }
-    function hideLoader() { loaderOverlay.classList.remove('active'); }
+    function showLoader(text) { document.getElementById('loaderText').textContent = text; document.getElementById('loaderOverlay').classList.add('active'); }
+    function hideLoader() { document.getElementById('loaderOverlay').classList.remove('active'); }
+
+    function formatTime(sec) {
+      if (isNaN(sec) || sec < 0) return "0:00.00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      const ms = Math.floor((sec % 1) * 100);
+      return `${m}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+    }
 
     function updateLabels() {
-      startTimeLabel.textContent = `${parseFloat(startTimeInput.value).toFixed(2)} 秒`;
-      endTimeLabel.textContent = `${parseFloat(endTimeInput.value).toFixed(2)} 秒`;
+      const s = parseFloat(startTimeInput.value);
+      const e = parseFloat(endTimeInput.value);
+      startTimeLabel.textContent = formatTime(s);
+      endTimeLabel.textContent = formatTime(e);
       pauseOffset = 0;
       checkFadeWarning();
     }
-    function updateZoomInfo() { zoomInfo.textContent = `ズーム：${zoomLevel.toFixed(1)}x`; }
+
     function updateScrollInfo() {
       if (currentAudioBuffer) {
         const pos = (scrollOffset / waveCanvas.width) * currentAudioBuffer.duration / zoomLevel;
-        scrollInfo.textContent = `位置：${pos.toFixed(2)} 秒`;
+        scrollInfo.textContent = formatTime(pos);
       }
     }
 
-    volumeInput.addEventListener('input', () => {
-      volumeLabel.textContent = `${parseFloat(volumeInput.value).toFixed(1)}x`;
-    });
-
     function checkFadeWarning() {
+      if(!currentAudioBuffer) return;
       const start = parseFloat(startTimeInput.value);
       const end = parseFloat(endTimeInput.value);
       const fadeIn = parseFloat(fadeInInput.value);
       const fadeOut = parseFloat(fadeOutInput.value);
-
       const duration = end - start;
       const fadeTotal = fadeIn + fadeOut;
 
       if (fadeTotal > duration || duration <= 0) {
         fadeWarning.style.display = 'block';
-        fadeWarningText.textContent = `範囲：${duration.toFixed(2)} 秒 | フェード合計：${fadeTotal.toFixed(2)} 秒 | 超過：${(fadeTotal - duration).toFixed(2)} 秒`;
-        exportMp3Btn.disabled = true;
-        exportWavBtn.disabled = true;
+        fadeWarningText.textContent = `A-B間：${duration.toFixed(2)}s | フェード：${fadeTotal.toFixed(2)}s`;
+        exportMp3Btn.disabled = true; exportWavBtn.disabled = true;
       } else {
         fadeWarning.style.display = 'none';
-        exportMp3Btn.disabled = false;
-        exportWavBtn.disabled = false;
+        exportMp3Btn.disabled = false; exportWavBtn.disabled = false;
       }
     }
 
-    function checkFadeWarningAndBlock() {
-      const start = parseFloat(startTimeInput.value);
-      const end = parseFloat(endTimeInput.value);
-      const fadeIn = parseFloat(fadeInInput.value);
-      const fadeOut = parseFloat(fadeOutInput.value);
-      const duration = end - start;
-      const fadeTotal = fadeIn + fadeOut;
+    volumeInput.addEventListener('input', () => { volumeLabel.textContent = `${parseFloat(volumeInput.value).toFixed(1)}x`; });
 
-      if (fadeTotal > duration || duration <= 0) {
-        alert('⚠️ フェード時間がカット範囲を超えています。\n\nフェード時間を短くするか、カット範囲を広くしてください。');
-        return true;
-      }
-      return false;
-    }
-
-    function calculateDistance(t1, t2) { return Math.sqrt(Math.pow(t1.clientX - t2.clientX, 2) + Math.pow(t1.clientY - t2.clientY, 2)); }
+    zoomSlider.addEventListener('input', (e) => {
+      if(!currentAudioBuffer) return;
+      zoomLevel = parseFloat(e.target.value);
+      zoomInfo.textContent = `${zoomLevel.toFixed(1)}x`;
+      const maxScrollX = (waveCanvas.width * zoomLevel) - waveCanvas.width;
+      scrollOffset = Math.max(0, Math.min(scrollOffset, maxScrollX));
+      drawWaveform(currentAudioBuffer, waveCanvas);
+      drawRange(waveCanvas, parseFloat(startTimeInput.value), parseFloat(endTimeInput.value), currentAudioBuffer.duration);
+      updateScrollInfo();
+    });
 
     mediaFileInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
       if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
       if (isPlaying) togglePlay();
-      volumeLabel.textContent = '1.0x'; volumeInput.value = 1;
-      fadeWarning.style.display = 'none';
-      exportMp3Btn.disabled = true;
-      exportWavBtn.disabled = true;
 
-      showLoader('ファイルを読み込んでいます...');
+      showLoader('音声を解析しています...');
       try {
         const arrayBuffer = await file.arrayBuffer();
-        showLoader('音声を解析しています...');
         currentAudioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-        audioInfo.textContent = `総時間：${currentAudioBuffer.duration.toFixed(2)} 秒`;
-        startTimeInput.value = 0; endTimeInput.value = currentAudioBuffer.duration.toFixed(2);
-        startTimeInput.max = currentAudioBuffer.duration; endTimeInput.max = currentAudioBuffer.duration;
-        [startTimeInput, endTimeInput, exportMp3Btn, exportWavBtn, playBtn, resetScrollBtn].forEach(el => el.disabled = false);
-
-        scrollOffset = 0; pauseOffset = 0;
-        waveCanvas.width = waveCanvas.offsetWidth;
-        drawWaveform(currentAudioBuffer, waveCanvas);
-        setupRangeSelection(waveCanvas, currentAudioBuffer);
-        setupPinchZoom(waveCanvas, currentAudioBuffer);
-        setupScrollPan(waveCanvas, currentAudioBuffer);
-        updateLabels(); updateZoomInfo(); updateScrollInfo();
+        resetStateAfterEdit();
       } catch (error) { alert('読み込みに失敗しました。'); } finally { hideLoader(); }
     });
 
-    [startTimeInput, endTimeInput, fadeInInput, fadeOutInput].forEach(input => {
-      input.addEventListener('input', () => {
-        if (isPlaying) togglePlay();
-        updateLabels();
-        if (currentAudioBuffer) {
-          drawWaveform(currentAudioBuffer, waveCanvas);
-          drawRange(waveCanvas, parseFloat(startTimeInput.value), parseFloat(endTimeInput.value), currentAudioBuffer.duration);
-        }
-      });
+    function resetStateAfterEdit() {
+      audioInfo.textContent = `総時間：${formatTime(currentAudioBuffer.duration)}`;
+      startTimeInput.max = currentAudioBuffer.duration;
+      endTimeInput.max = currentAudioBuffer.duration;
+      startTimeInput.value = 0;
+      endTimeInput.value = currentAudioBuffer.duration;
+
+      [startTimeInput, endTimeInput, exportMp3Btn, exportWavBtn, playBtn, cropBtn, deleteBtn].forEach(el => el.disabled = false);
+
+      scrollOffset = 0; pauseOffset = 0; zoomLevel = 1; zoomSlider.value = 1;
+      zoomInfo.textContent = "1.0x";
+      waveCanvas.width = waveCanvas.offsetWidth;
+
+      drawWaveform(currentAudioBuffer, waveCanvas);
+      drawRange(waveCanvas, 0, currentAudioBuffer.duration, currentAudioBuffer.duration);
+      setupScrollPan(waveCanvas, currentAudioBuffer);
+      setupRangeSelection(waveCanvas, currentAudioBuffer);
+      updateLabels(); updateScrollInfo();
+    }
+
+    cropBtn.addEventListener('click', () => {
+      if(!currentAudioBuffer || isPlaying) if(isPlaying) togglePlay();
+      const start = parseFloat(startTimeInput.value);
+      const end = parseFloat(endTimeInput.value);
+      if(start >= end) return;
+
+      if(confirm('A点からB点の範囲だけを残し、他をすべて削除しますか？')) {
+        showLoader('切り出し中...');
+        setTimeout(() => {
+          currentAudioBuffer = extractBuffer(currentAudioBuffer, start, end);
+          resetStateAfterEdit();
+          hideLoader();
+        }, 50);
+      }
     });
 
-    playBtn.addEventListener('click', () => {
-      if (checkFadeWarningAndBlock()) return;
-      togglePlay();
+    deleteBtn.addEventListener('click', () => {
+      if(!currentAudioBuffer || isPlaying) if(isPlaying) togglePlay();
+      const start = parseFloat(startTimeInput.value);
+      const end = parseFloat(endTimeInput.value);
+      if(start >= end) return;
+
+      if(confirm('A点からB点の範囲を削除し、前後を繋げますか？')) {
+        showLoader('削除中...');
+        setTimeout(() => {
+          currentAudioBuffer = removeBuffer(currentAudioBuffer, start, end);
+          resetStateAfterEdit();
+          hideLoader();
+        }, 50);
+      }
     });
 
-    resetScrollBtn.addEventListener('click', () => { scrollOffset = 0; drawWaveform(currentAudioBuffer, waveCanvas); updateScrollInfo(); });
+    function extractBuffer(buffer, startSec, endSec) {
+      const startOffset = Math.floor(startSec * buffer.sampleRate);
+      const endOffset = Math.floor(endSec * buffer.sampleRate);
+      const frameCount = endOffset - startOffset;
+      const newBuffer = audioContext.createBuffer(buffer.numberOfChannels, frameCount, buffer.sampleRate);
+      for(let i=0; i<buffer.numberOfChannels; i++) {
+          newBuffer.getChannelData(i).set(buffer.getChannelData(i).subarray(startOffset, endOffset));
+      }
+      return newBuffer;
+    }
+
+    function removeBuffer(buffer, startSec, endSec) {
+      const startOffset = Math.floor(startSec * buffer.sampleRate);
+      const endOffset = Math.floor(endSec * buffer.sampleRate);
+      const frameCount = buffer.length - (endOffset - startOffset);
+      const newBuffer = audioContext.createBuffer(buffer.numberOfChannels, frameCount, buffer.sampleRate);
+      for(let i=0; i<buffer.numberOfChannels; i++) {
+          const channel = buffer.getChannelData(i);
+          const newChannel = newBuffer.getChannelData(i);
+          newChannel.set(channel.subarray(0, startOffset), 0);
+          newChannel.set(channel.subarray(endOffset), startOffset);
+      }
+      return newBuffer;
+    }
+
+    playBtn.addEventListener('click', togglePlay);
 
     function togglePlay() {
       if (!currentAudioBuffer) return;
@@ -372,7 +409,7 @@
       if (isPlaying) {
         previewSource.stop(); previewSource.disconnect(); isPlaying = false;
         pauseOffset += audioContext.currentTime - playbackStartTime;
-        playBtn.textContent = '▶ 再生プレビュー'; cancelAnimationFrame(animationId);
+        playBtn.innerHTML = '▶ 再生プレビュー'; cancelAnimationFrame(animationId);
       } else {
         const fadeIn = parseFloat(fadeInInput.value), fadeOut = parseFloat(fadeOutInput.value);
         const volume = parseFloat(volumeInput.value);
@@ -384,12 +421,12 @@
         previewSource.buffer = fadeBuffer; previewSource.connect(audioContext.destination);
         previewSource.start(0, 0, fadeBuffer.duration);
         isPlaying = true; playbackStartTime = audioContext.currentTime;
-        playBtn.textContent = '⏸ 一時停止';
+        playBtn.innerHTML = '⏸ 一時停止';
 
         previewSource.onended = () => {
           if (isPlaying) {
             isPlaying = false; pauseOffset = 0;
-            playBtn.textContent = '▶ 再生プレビュー'; cancelAnimationFrame(animationId);
+            playBtn.innerHTML = '▶ 再生プレビュー'; cancelAnimationFrame(animationId);
             drawWaveform(currentAudioBuffer, waveCanvas);
             drawRange(waveCanvas, parseFloat(startTimeInput.value), parseFloat(endTimeInput.value), currentAudioBuffer.duration);
           }
@@ -413,13 +450,15 @@
     }
 
     function setupScrollPan(canvas, audioBuffer) {
-      canvas.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { isPanning = true; lastTouchX = e.touches[0].clientX; } }, { passive: false });
+      canvas.ontouchstart = null; canvas.ontouchmove = null; canvas.ontouchend = null;
+      canvas.addEventListener('touchstart', (e) => { if (e.touches.length === 1 && !isDragging) { isPanning = true; lastTouchX = e.touches[0].clientX; } }, { passive: false });
       canvas.addEventListener('touchmove', (e) => {
         if (e.touches.length === 1 && isPanning) {
           e.preventDefault();
-          const dx = e.touches[0].clientX - lastTouchX; scrollOffset += dx;
-          const maxScroll = (audioBuffer.duration * canvas.width / zoomLevel) - canvas.width / zoomLevel;
-          scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll * zoomLevel));
+          const dx = e.touches[0].clientX - lastTouchX;
+          scrollOffset -= dx;
+          const maxScrollX = (canvas.width * zoomLevel) - canvas.width;
+          scrollOffset = Math.max(0, Math.min(scrollOffset, maxScrollX));
           lastTouchX = e.touches[0].clientX;
           drawWaveform(audioBuffer, canvas); drawRange(canvas, parseFloat(startTimeInput.value), parseFloat(endTimeInput.value), audioBuffer.duration); updateScrollInfo();
           if (isPlaying) updateProgress();
@@ -427,89 +466,6 @@
       }, { passive: false });
       canvas.addEventListener('touchend', () => isPanning = false);
     }
-
-    function setupPinchZoom(canvas, audioBuffer) {
-      canvas.addEventListener('touchstart', (e) => { if (e.touches.length === 2) { isPanning = isDragging = false; initialDistance = calculateDistance(e.touches[0], e.touches[1]); } }, { passive: false });
-      canvas.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2 && initialDistance > 0) {
-          e.preventDefault();
-          const scale = calculateDistance(e.touches[0], e.touches[1]) / initialDistance;
-          const newZoom = zoomLevel * scale;
-          if (newZoom >= MIN_ZOOM && newZoom <= MAX_ZOOM) {
-            zoomLevel = newZoom; updateZoomInfo(); scrollOffset = 0;
-            drawWaveform(audioBuffer, canvas); drawRange(canvas, parseFloat(startTimeInput.value), parseFloat(endTimeInput.value), audioBuffer.duration); updateScrollInfo();
-          }
-        }
-      }, { passive: false });
-      canvas.addEventListener('touchend', (e) => { if (e.touches.length < 2) initialDistance = 0; });
-    }
-
-    function applyFade(buffer, fadeInTime, fadeOutTime) {
-      const sampleRate = buffer.sampleRate, channels = buffer.numberOfChannels, totalFrames = buffer.length;
-      const fadeInFrames = Math.floor(fadeInTime * sampleRate), fadeOutFrames = Math.floor(fadeOutTime * sampleRate);
-
-      for (let i = 0; i < channels; i++) {
-        const data = buffer.getChannelData(i);
-        for (let j = 0; j < fadeInFrames && j < totalFrames; j++) data[j] *= j / fadeInFrames;
-        for (let j = totalFrames - fadeOutFrames; j < totalFrames; j++) { if (j >= 0) data[j] *= (totalFrames - j) / fadeOutFrames; }
-      }
-      return buffer;
-    }
-
-    function applyVolume(buffer, volume) {
-      const channels = buffer.numberOfChannels;
-      for (let i = 0; i < channels; i++) {
-        const data = buffer.getChannelData(i);
-        for (let j = 0; j < data.length; j++) {
-          data[j] *= volume;
-          data[j] = Math.max(-1, Math.min(1, data[j]));
-        }
-      }
-      return buffer;
-    }
-
-    function cutAudioBuffer(start, end, fadeInTime = 0, fadeOutTime = 0, volume = 1.0) {
-      const sampleRate = currentAudioBuffer.sampleRate, channels = currentAudioBuffer.numberOfChannels;
-      const startOffset = Math.floor(start * sampleRate), endOffset = Math.floor(end * sampleRate);
-      const frameCount = Math.max(1, endOffset - startOffset);
-
-      let newBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
-      for (let i = 0; i < channels; i++) {
-        newBuffer.getChannelData(i).set(currentAudioBuffer.getChannelData(i).subarray(startOffset, startOffset + frameCount));
-      }
-
-      if (fadeInTime > 0 || fadeOutTime > 0) newBuffer = applyFade(newBuffer, fadeInTime, fadeOutTime);
-      if (volume !== 1.0) newBuffer = applyVolume(newBuffer, volume);
-      return newBuffer;
-    }
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    exportMp3Btn.addEventListener('click', () => {
-      if (checkFadeWarningAndBlock()) return;
-      const start = parseFloat(startTimeInput.value), end = parseFloat(endTimeInput.value);
-      const fadeIn = parseFloat(fadeInInput.value), fadeOut = parseFloat(fadeOutInput.value);
-      const volume = parseFloat(volumeInput.value);
-      if (start >= end) return; if (isPlaying) togglePlay();
-      showLoader('MP3 に変換しています...'); setTimeout(() => {
-        downloadBlob(audioBufferToMp3(cutAudioBuffer(start, end, fadeIn, fadeOut, volume)), `WaveClip_${Date.now()}.mp3`); hideLoader();
-      }, 50);
-    });
-
-    exportWavBtn.addEventListener('click', () => {
-      if (checkFadeWarningAndBlock()) return;
-      const start = parseFloat(startTimeInput.value), end = parseFloat(endTimeInput.value);
-      const fadeIn = parseFloat(fadeInInput.value), fadeOut = parseFloat(fadeOutInput.value);
-      const volume = parseFloat(volumeInput.value);
-      if (start >= end) return; if (isPlaying) togglePlay();
-      showLoader('WAV で保存しています...'); setTimeout(() => {
-        downloadBlob(audioBufferToWav(cutAudioBuffer(start, end, fadeIn, fadeOut, volume)), `WaveClip_${Date.now()}.wav`); hideLoader();
-      }, 50);
-    });
 
     function drawWaveform(audioBuffer, canvas) {
       const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
@@ -531,7 +487,7 @@
     function drawRange(canvas, start, end, duration) {
       const ctx = canvas.getContext('2d'), w = canvas.width, h = canvas.height;
       const sx = (start / duration) * w * zoomLevel - scrollOffset, ex = (end / duration) * w * zoomLevel - scrollOffset;
-      ctx.fillStyle = 'rgba(0, 122, 255, 0.2)'; ctx.fillRect(sx, 0, ex - sx, h);
+      ctx.fillStyle = 'rgba(0, 122, 255, 0.3)'; ctx.fillRect(sx, 0, ex - sx, h);
       ctx.strokeStyle = '#0a84ff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, h); ctx.moveTo(ex, 0); ctx.lineTo(ex, h); ctx.stroke();
     }
 
@@ -543,7 +499,7 @@
         }
       }, { passive: false });
       canvas.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1 && !isPanning && isDragging) {
+        if (e.touches.length === 1 && isDragging) {
           e.preventDefault();
           const adjX = e.touches[0].clientX - canvas.getBoundingClientRect().left + scrollOffset;
           endSelect = Math.max(0, Math.min(canvas.width * zoomLevel, adjX)) / (canvas.width * zoomLevel) * audioBuffer.duration;
@@ -556,31 +512,83 @@
       window.addEventListener('touchend', () => isDragging = false);
     }
 
+    function applyFade(buffer, fadeInTime, fadeOutTime) {
+      const sampleRate = buffer.sampleRate, channels = buffer.numberOfChannels, totalFrames = buffer.length;
+      const fadeInFrames = Math.floor(fadeInTime * sampleRate), fadeOutFrames = Math.floor(fadeOutTime * sampleRate);
+      for (let i = 0; i < channels; i++) {
+        const data = buffer.getChannelData(i);
+        for (let j = 0; j < fadeInFrames && j < totalFrames; j++) data[j] *= j / fadeInFrames;
+        for (let j = totalFrames - fadeOutFrames; j < totalFrames; j++) { if (j >= 0) data[j] *= (totalFrames - j) / fadeOutFrames; }
+      }
+      return buffer;
+    }
+
+    function applyVolume(buffer, volume) {
+      const channels = buffer.numberOfChannels;
+      for (let i = 0; i < channels; i++) {
+        const data = buffer.getChannelData(i);
+        for (let j = 0; j < data.length; j++) { data[j] = Math.max(-1, Math.min(1, data[j] * volume)); }
+      }
+      return buffer;
+    }
+
+    function cutAudioBuffer(start, end, fadeInTime = 0, fadeOutTime = 0, volume = 1.0) {
+      const sampleRate = currentAudioBuffer.sampleRate, channels = currentAudioBuffer.numberOfChannels;
+      const startOffset = Math.floor(start * sampleRate), endOffset = Math.floor(end * sampleRate);
+      const frameCount = Math.max(1, endOffset - startOffset);
+      let newBuffer = audioContext.createBuffer(channels, frameCount, sampleRate);
+      for (let i = 0; i < channels; i++) { newBuffer.getChannelData(i).set(currentAudioBuffer.getChannelData(i).subarray(startOffset, startOffset + frameCount)); }
+      if (fadeInTime > 0 || fadeOutTime > 0) newBuffer = applyFade(newBuffer, fadeInTime, fadeOutTime);
+      if (volume !== 1.0) newBuffer = applyVolume(newBuffer, volume);
+      return newBuffer;
+    }
+
+    function downloadBlob(blob, filename) {
+      const sizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+      setTimeout(() => alert(`保存の準備が完了しました！\nファイルサイズ: ${sizeMB} MB`), 100);
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    exportMp3Btn.addEventListener('click', () => {
+      const start = parseFloat(startTimeInput.value), end = parseFloat(endTimeInput.value);
+      const fadeIn = parseFloat(fadeInInput.value), fadeOut = parseFloat(fadeOutInput.value);
+      const volume = parseFloat(volumeInput.value);
+      if (start >= end) return; if (isPlaying) togglePlay();
+      showLoader('MP3 に変換しています...'); setTimeout(() => {
+        downloadBlob(audioBufferToMp3(cutAudioBuffer(start, end, fadeIn, fadeOut, volume)), `WaveClip_${Date.now()}.mp3`); hideLoader();
+      }, 50);
+    });
+
+    exportWavBtn.addEventListener('click', () => {
+      const start = parseFloat(startTimeInput.value), end = parseFloat(endTimeInput.value);
+      const fadeIn = parseFloat(fadeInInput.value), fadeOut = parseFloat(fadeOutInput.value);
+      const volume = parseFloat(volumeInput.value);
+      if (start >= end) return; if (isPlaying) togglePlay();
+      showLoader('WAV で保存しています...'); setTimeout(() => {
+        downloadBlob(audioBufferToWav(cutAudioBuffer(start, end, fadeIn, fadeOut, volume)), `WaveClip_${Date.now()}.wav`); hideLoader();
+      }, 50);
+    });
+
     function audioBufferToMp3(buffer) {
       const numChannels = buffer.numberOfChannels, encoder = new lamejs.Mp3Encoder(numChannels, buffer.sampleRate, 128), blockSize = 1152, mp3Data = [];
       const left = new Int16Array(buffer.getChannelData(0).length);
       for (let i = 0; i < left.length; i++) left[i] = buffer.getChannelData(0)[i] < 0 ? buffer.getChannelData(0)[i] * 0x8000 : buffer.getChannelData(0)[i] * 0x7FFF;
       if (numChannels === 1) {
-        for (let i = 0; i < left.length; i += blockSize) {
-          const buf = encoder.encodeBuffer(left.subarray(i, i + blockSize));
-          if (buf.length > 0) mp3Data.push(new Int8Array(buf));
-        }
+        for (let i = 0; i < left.length; i += blockSize) { const buf = encoder.encodeBuffer(left.subarray(i, i + blockSize)); if (buf.length > 0) mp3Data.push(new Int8Array(buf)); }
       } else {
         const right = new Int16Array(buffer.getChannelData(1).length);
         for (let i = 0; i < right.length; i++) right[i] = buffer.getChannelData(1)[i] < 0 ? buffer.getChannelData(1)[i] * 0x8000 : buffer.getChannelData(1)[i] * 0x7FFF;
-        for (let i = 0; i < left.length; i += blockSize) {
-          const buf = encoder.encodeBuffer(left.subarray(i, i + blockSize), right.subarray(i, i + blockSize));
-          if (buf.length > 0) mp3Data.push(new Int8Array(buf));
-        }
+        for (let i = 0; i < left.length; i += blockSize) { const buf = encoder.encodeBuffer(left.subarray(i, i + blockSize), right.subarray(i, i + blockSize)); if (buf.length > 0) mp3Data.push(new Int8Array(buf)); }
       }
-      const end = encoder.flush();
-      if (end.length > 0) mp3Data.push(new Int8Array(end));
+      const end = encoder.flush(); if (end.length > 0) mp3Data.push(new Int8Array(end));
       return new Blob(mp3Data, { type: 'audio/mpeg' });
     }
 
     function audioBufferToWav(buffer) {
-      const numChan = buffer.numberOfChannels, length = buffer.length * numChan * 2 + 44;
-      const result = new ArrayBuffer(length), view = new DataView(result); let pos = 0;
+      const numChan = buffer.numberOfChannels, length = buffer.length * numChan * 2 + 44, result = new ArrayBuffer(length), view = new DataView(result); let pos = 0;
       const setStr = (s) => { for (let i = 0; i < s.length; i++) view.setUint8(pos++, s.charCodeAt(i)); };
       setStr('RIFF'); view.setUint32(pos, length - 8, true); pos += 4; setStr('WAVE'); setStr('fmt ');
       view.setUint32(pos, 16, true); pos += 4; view.setUint16(pos, 1, true); pos += 2; view.setUint16(pos, numChan, true); pos += 2;
